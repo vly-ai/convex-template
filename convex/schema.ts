@@ -6,4 +6,14 @@ export default defineSchema({
     author: v.string(),
     body: v.string(),
   }),
+
+  users: defineTable({
+    name: v.string(),
+    email: v.string(),
+  }),
+
+  likes: defineTable({
+    liker: v.string(),
+    messageID: v.string(),
+  }).index("byMessageID", ["messageID"]),
 });

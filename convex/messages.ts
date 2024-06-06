@@ -7,7 +7,21 @@ export const list = query({
     // Grab the most recent messages.
     const messages = await ctx.db.query("messages").order("desc").take(100);
     // Reverse the list so that it's in a chronological order.
-    return messages.reverse();
+    const messagesWithLikes = await Promise.all(
+      messages.map(async (message) => {
+        const likes = await ctx.db.query("likes").withIndex("byMessageID", (q) => q.eq("messageID", message._id)).collect();
+        return {
+          ...message,
+          likes: likes.length};
+      })
+    )
+
+    return messagesWithLikes.reverse().map( 
+      (message) => ({
+      ...message,
+      body: message.body.replaceAll(":)", "🤗"),
+    })
+  );
   },
 });
 
@@ -18,3 +32,10 @@ export const send = mutation({
     await ctx.db.insert("messages", { body, author });
   },
 });
+
+export const like = mutation({
+  args: {liker: v.string(), messageID: v.string()},
+  handler: async (ctx, args) => {
+    await ctx.db.insert("likes", {liker: args.liker, messageID: args.messageID});
+  }
+})
