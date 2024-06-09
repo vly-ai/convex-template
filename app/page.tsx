@@ -28,7 +28,7 @@ export default function App() {
           Connected as <strong>{NAME}</strong>
         </p>
       </header>
-      {messages?.map((message) => (
+      {messages?.map((message: any) => (
         <article
           key={message._id}
           className={message.author === NAME ? "message-mine" : ""}
